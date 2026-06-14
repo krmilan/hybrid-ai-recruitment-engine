@@ -1,46 +1,47 @@
+import os
 import jsonlines
 from docx import Document
-import os
 
 def read_docx(file_path):
-    """Helper function to read text from a Word document (.docx)"""
     if not os.path.exists(file_path):
         print(f"⚠️ Warning: File not found at {file_path}")
         return ""
     doc = Document(file_path)
-    full_text = []
-    for para in doc.paragraphs:
-        full_text.append(para.text)
-    return "\n".join(full_text)
+    return "\n".join([para.text for para in doc.paragraphs])
 
 def load_challenge_data():
-    print("📦 Reading challenge datasets...")
+    print("📦 Reading challenge workspace files from disk...")
     
-    # 1. Load the Job Description
-    jd_text = read_docx("data/job_description.docx")
-    print(f"✅ Loaded Job Description ({len(jd_text)} characters)")
-    
-    # 2. Load the Redrob Signals text (extra contextual info)
-    signals_text = read_docx("data/redrob_signals_doc.docx")
-    print(f"✅ Loaded Redrob Signals ({len(signals_text)} characters)")
-
-    # 3. Load Candidates Profiles from candidates.jsonl
-    candidates = []
+    jd_path = "data/job_description.docx"
+    signals_path = "data/redrob_signals_doc.docx"
     candidates_path = "data/candidates.jsonl"
     
+    # 1. Parse documentation texts
+    jd_text = read_docx(jd_path)
+    signals_text = read_docx(signals_path)
+    
+    # 2. Ingest candidate dataset with defensive honeypot filtering
+    candidates = []
+    skipped_honeypots = 0
+    
     if os.path.exists(candidates_path):
+        print("🕵️‍♂️ Scanning 100,000 records for malicious honeypot profiles...")
         with jsonlines.open(candidates_path) as reader:
             for obj in reader:
+                # Extract the behavioral signals block
+                signals = obj.get("redrob_signals", {})
+                
+                # If signals dictate an impossible profile or faked history, drop them immediately!
+                if isinstance(signals, dict):
+                    if signals.get("impossible_timeline", 0) == 1 or signals.get("fake_experience", 0) == 1:
+                        skipped_honeypots += 1
+                        continue # Skip this profile entirely; do not add to candidates
+                
                 candidates.append(obj)
-        print(f"✅ Loaded {len(candidates)} candidate profiles from JSONL")
+                
+        print(f"  ✅ Extraction Complete: Retained {len(candidates)} valid candidate profiles.")
+        print(f"  🛑 Guardrails Engaged: Intercepted and scrubbed {skipped_honeypots} honeypot traps.")
     else:
-        print(f"❌ Error: {candidates_path} not found!")
-
+        print(f"❌ Critical Error: Data source missing at {candidates_path}")
+        
     return jd_text, signals_text, candidates
-
-if __name__ == "__main__":
-    # Test running the script directly
-    jd, signals, candidates = load_challenge_data()
-    if candidates:
-        print("\n👀 Let's look at the structure of the first candidate profile:")
-        print(list(candidates[0].keys()))

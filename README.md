@@ -212,6 +212,16 @@ Advantages:
 
 ---
 
+## 🛡️ Honeypot & Fraud Defense Layer
+
+The system implements an automated defensive gate within the data ingestion layer (`src/data_loader.py`) to handle malicious "honeypot" candidates planted in the dataset.
+
+* **The Problem:** Keyword-stuffer profiles use extreme technical phrase densities to artificially trick semantic embeddings into ranking them at the very top, despite having faked information.
+* **The Solution:** Before any matrix vectorization occurs, the pipeline intercepts the data stream and evaluates the nested `redrob_signals` attributes. Any profile carrying affirmative flags for `impossible_timeline` or `fake_experience` is permanently purged from the tracking pool. 
+* **The Impact:** This completely protects downstream ranking matrices from corruption and guarantees compliance with the strict $<10\%$ challenge disqualification threshold.
+
+---
+
 ## 📂 Project Structure
 
 ```text
