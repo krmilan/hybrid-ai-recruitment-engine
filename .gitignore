@@ -1,0 +1,20 @@
+# --- IGNORE CHALLENGE DATASETS ---
+data/candidates.jsonl
+data/job_description.docx
+data/redrob_signals_doc.docx
+data/sample_candidates.json
+data/sample_submission.csv
+data/submission_spec.docx
+
+# --- IGNORE MASSIVE BINARY MATH CACHES ---
+data/candidate_embeddings.npy
+
+# --- IGNORE LOCAL ENVIRONMENT FOLDERS ---
+venv/
+.venv/
+__pycache__/
+*.pyc
+
+# --- SYSTEM FILES ---
+.DS_Store
+.vscode/
