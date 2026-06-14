@@ -316,9 +316,9 @@ A102,1,0.9812,Strong semantic alignment with cloud infrastructure experience.
 ### Clone Repository
 
 ```bash
-git clone https://github.com/yourusername/ai-recruitment-engine.git
+git clone https://github.com/yourusername/hybrid-ai-recruitment-engine.git
 
-cd ai-recruitment-engine
+cd hybrid-ai-recruitment-engine
 ```
 
 ### Create Virtual Environment
